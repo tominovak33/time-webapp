@@ -12,6 +12,9 @@ body {
   background: #0f0f0f;
   color: #f0f0f0;
   font-family: 'Segoe UI', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 .card {
@@ -24,8 +27,8 @@ body {
 
 .time {
   font-size: 5rem;
-  font-weight: 200;
-  letter-spacing: 0.05em;
+  font-weight: 300;
+  letter-spacing: 0.04em;
   font-variant-numeric: tabular-nums;
 }
 
@@ -48,6 +51,67 @@ body {
   font-family: monospace;
 }
 
-.error {
-  color: #e05;
+.warning {
+  margin-top: 1rem;
+  font-size: 0.8rem;
+  color: #c80;
+  min-height: 1.2em;
+}
+
+/* Bottom-right info button + tooltip */
+.info-btn {
+  position: fixed;
+  bottom: 1.25rem;
+  right: 1.25rem;
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: #1e1e1e;
+  border: 1px solid #333;
+  color: #555;
+  cursor: default;
+  user-select: none;
+}
+
+.info-btn svg {
+  width: 1rem;
+  height: 1rem;
+  display: block;
+  flex-shrink: 0;
+}
+
+.info-btn:hover {
+  color: #aaa;
+  border-color: #555;
+}
+
+.info-tooltip {
+  display: none;
+  position: absolute;
+  bottom: calc(100% + 0.5rem);
+  right: 0;
+  background: #1a1a1a;
+  border: 1px solid #3a3a3a;
+  border-radius: 0.5rem;
+  padding: 0.6rem 0.9rem;
+  white-space: nowrap;
+  font-size: 0.75rem;
+  font-family: monospace;
+  color: #aaa;
+  pointer-events: none;
+}
+
+.info-tooltip-title {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #555;
+  margin-bottom: 0.25rem;
+}
+
+.info-btn:hover .info-tooltip {
+  display: block;
 }

@@ -12,9 +12,21 @@
       <div id="time" class="time">--:--:--</div>
       <div id="date" class="date">---</div>
       <div id="timezone" class="timezone">---</div>
-      <div id="source" class="source">Fetching from time server...</div>
+      <div id="time-warning" class="warning"></div>
     </div>
   </main>
-  <script src="app.js"></script>
+  <div class="info-btn" aria-label="Time sync info">
+    <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.5"/>
+      <rect x="7.25" y="7" width="1.5" height="5" rx="0.75" fill="currentColor"/>
+      <circle cx="8" cy="4.5" r="0.85" fill="currentColor"/>
+    </svg>
+    <div class="info-tooltip">
+      <div class="info-tooltip-title">Clock drift</div>
+      <div id="drift-value">Checking…</div>
+    </div>
+  </div>
+
+  <script type="module" src="app.js"></script>
 </body>
 </html>

@@ -1,50 +1,39 @@
-const API_URL = 'https://worldtimeapi.org/api/ip';
+import { getTime, getTimeWarning, getTimeDrift } from './time.js';
 
 const timeEl     = document.getElementById('time');
 const dateEl     = document.getElementById('date');
 const timezoneEl = document.getElementById('timezone');
-const sourceEl   = document.getElementById('source');
-
-// Offset in ms between server time and local performance.now() at fetch time
-let serverEpochMs = null;
-let localBaseMs   = null;
+const warningEl  = document.getElementById('time-warning');
+const driftEl    = document.getElementById('drift-value');
 
 function pad(n) {
   return String(n).padStart(2, '0');
 }
 
 function tick() {
-  if (serverEpochMs === null) return;
-
-  const elapsed = performance.now() - localBaseMs;
-  const now = new Date(serverEpochMs + elapsed);
+  const now = getTime();
 
   timeEl.textContent = `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
-}
+  dateEl.textContent = now.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
-async function fetchTime() {
-  try {
-    const res = await fetch(API_URL);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const warning = getTimeWarning();
+  warningEl.textContent = warning ?? '';
 
-    const data = await res.json();
-
-    // Record the anchor point as soon as we have the data
-    localBaseMs   = performance.now();
-    serverEpochMs = new Date(data.datetime).getTime();
-
-    const d = new Date(data.datetime);
-    dateEl.textContent     = d.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-    timezoneEl.textContent = `${data.timezone}  (UTC${data.utc_offset})`;
-    sourceEl.textContent   = `Source: ${API_URL}`;
-    sourceEl.classList.remove('error');
-
-    setInterval(tick, 1000);
-    tick();
-  } catch (err) {
-    sourceEl.textContent = `Failed to reach time server: ${err.message}`;
-    sourceEl.classList.add('error');
+  const drift = getTimeDrift();
+  if (drift !== null) {
+    const sign = drift > 0 ? '+' : '';
+    driftEl.textContent = `${sign}${drift}ms (${sign}${(drift / 1000).toFixed(2)}s) vs time.now`;
+  } else {
+    driftEl.textContent = 'Checking…';
   }
 }
 
-fetchTime();
+// Show timezone once
+const offset = -new Date().getTimezoneOffset();
+const sign   = offset >= 0 ? '+' : '-';
+const hh     = pad(Math.floor(Math.abs(offset) / 60));
+const mm     = pad(Math.abs(offset) % 60);
+timezoneEl.textContent = `${Intl.DateTimeFormat().resolvedOptions().timeZone}  (UTC${sign}${hh}:${mm})`;
+
+setInterval(tick, 1000);
+tick();
