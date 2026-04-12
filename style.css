@@ -1,0 +1,53 @@
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #0f0f0f;
+  color: #f0f0f0;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+}
+
+.card {
+  text-align: center;
+  padding: 3rem 4rem;
+  background: #1a1a1a;
+  border-radius: 1rem;
+  border: 1px solid #2a2a2a;
+}
+
+.time {
+  font-size: 5rem;
+  font-weight: 200;
+  letter-spacing: 0.05em;
+  font-variant-numeric: tabular-nums;
+}
+
+.date {
+  margin-top: 0.5rem;
+  font-size: 1.25rem;
+  color: #888;
+}
+
+.timezone {
+  margin-top: 0.25rem;
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.source {
+  margin-top: 1.5rem;
+  font-size: 0.75rem;
+  color: #444;
+  font-family: monospace;
+}
+
+.error {
+  color: #e05;
+}
