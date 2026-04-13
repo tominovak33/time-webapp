@@ -40,5 +40,7 @@ export function getTimeDrift() {
   return timeDriftMs;
 }
 
+export { checkTimeDrift };
+
 // Run check on load, does not block anything
 checkTimeDrift();
