@@ -1,4 +1,5 @@
 import { getTime, getTimeWarning, getTimeDrift } from './time.js';
+import { saveEntry, deleteEntry, renderData } from './tracking.js';
 
 const timeEl     = document.getElementById('time');
 const dateEl     = document.getElementById('date');
@@ -37,3 +38,30 @@ timezoneEl.textContent = `${Intl.DateTimeFormat().resolvedOptions().timeZone}  (
 
 setInterval(tick, 1000);
 tick();
+
+// --- Tracking ---
+const trackForm    = document.getElementById('track-form');
+const trackLabel   = document.getElementById('track-label');
+const trackValue   = document.getElementById('track-value');
+const trackedData  = document.getElementById('tracked-data');
+
+trackForm.addEventListener('submit', (e) => {
+  e.preventDefault();
+  const label = trackLabel.value.trim();
+  const value = trackValue.value.trim();
+  if (!label || !value) return;
+
+  saveEntry(label, value);
+  renderData(trackedData);
+  trackValue.value = '';
+  trackLabel.focus();
+});
+
+trackedData.addEventListener('click', (e) => {
+  const btn = e.target.closest('.track-delete');
+  if (!btn) return;
+  deleteEntry(btn.dataset.label, Number(btn.dataset.index));
+  renderData(trackedData);
+});
+
+renderData(trackedData);

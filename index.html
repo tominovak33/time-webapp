@@ -15,6 +15,14 @@
       <div id="timezone" class="timezone">---</div>
       <div id="time-warning" class="warning"></div>
     </div>
+
+    <form id="track-form" class="track-form">
+      <input type="text" id="track-label" placeholder="Label" required />
+      <input type="text" id="track-value" placeholder="Value (+/-)" required />
+      <button type="submit">Save</button>
+    </form>
+
+    <section id="tracked-data" class="tracked-data"></section>
   </main>
   <div class="info-btn" aria-label="Time sync info">
     <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
