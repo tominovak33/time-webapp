@@ -23,6 +23,15 @@
     </form>
 
     <section id="tracked-data" class="tracked-data"></section>
+
+    <div id="data-toolbar" class="data-toolbar">
+      <button id="export-json" type="button">Export JSON</button>
+      <button id="export-csv" type="button">Export CSV</button>
+      <label class="import-btn">
+        Import
+        <input type="file" id="import-file" accept=".json,.csv" hidden />
+      </label>
+    </div>
   </main>
   <div class="cog-btn" id="cog-btn" aria-label="Timezone settings">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -44,6 +53,17 @@
     <div class="info-tooltip">
       <div class="info-tooltip-title">Clock drift</div>
       <div id="drift-value">Checking…</div>
+    </div>
+  </div>
+
+  <div id="chart-modal" class="modal-backdrop" hidden>
+    <div class="modal">
+      <div class="modal-header">
+        <h2 id="chart-title" class="modal-title"></h2>
+        <button id="chart-close" class="modal-close" aria-label="Close">&times;</button>
+      </div>
+      <div id="chart-summary" class="chart-summary"></div>
+      <canvas id="chart-canvas" class="chart-canvas"></canvas>
     </div>
   </div>
 

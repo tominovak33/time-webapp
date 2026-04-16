@@ -1,5 +1,6 @@
 import { getTime, getTimeWarning, getTimeDrift, checkTimeDrift } from './time.js';
-import { saveEntry, deleteEntry, renderData } from './tracking.js';
+import { saveEntry, deleteEntry, renderData, exportJSON, exportCSV, importFile } from './tracking.js';
+import { openChart } from './chart.js';
 
 const STORAGE_KEY = 'preferred-timezone';
 
@@ -130,11 +131,42 @@ trackForm.addEventListener('submit', (e) => {
   trackLabel.focus();
 });
 
+const chartEls = {
+  modal:   document.getElementById('chart-modal'),
+  title:   document.getElementById('chart-title'),
+  summary: document.getElementById('chart-summary'),
+  canvas:  document.getElementById('chart-canvas'),
+  close:   document.getElementById('chart-close'),
+};
+
 trackedData.addEventListener('click', (e) => {
+  // Delete button
   const btn = e.target.closest('.track-delete');
-  if (!btn) return;
-  deleteEntry(btn.dataset.label, Number(btn.dataset.index));
-  renderData(trackedData);
+  if (btn) {
+    deleteEntry(btn.dataset.label, Number(btn.dataset.index));
+    renderData(trackedData);
+    return;
+  }
+  // Label click → open chart
+  const labelEl = e.target.closest('.track-label');
+  if (labelEl) {
+    openChart(labelEl.textContent, chartEls);
+  }
 });
 
 renderData(trackedData);
+
+// --- Export / Import ---
+document.getElementById('export-json').addEventListener('click', exportJSON);
+document.getElementById('export-csv').addEventListener('click', exportCSV);
+document.getElementById('import-file').addEventListener('change', async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  try {
+    await importFile(file);
+    renderData(trackedData);
+  } catch (err) {
+    alert(`Import failed: ${err.message}`);
+  }
+  e.target.value = '';
+});
