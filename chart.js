@@ -42,16 +42,37 @@ export function openChart(label, { modal, title, summary, canvas, close }) {
 }
 
 function buildSummary(entries) {
-  const now = Date.now();
-  const last24 = entries.filter(e => now - new Date(e.datetime).getTime() < DAY_MS);
-  const diff24 = last24.reduce((s, e) => s + parseNum(e.value), 0);
-  const total = entries.reduce((s, e) => s + parseNum(e.value), 0);
+  const sorted = [...entries].sort((a, b) => new Date(a.datetime) - new Date(b.datetime));
+  const latest = parseNum(sorted[sorted.length - 1].value);
+  const latestTime = new Date(sorted[sorted.length - 1].datetime).getTime();
+
+  // Last 24h change: latest value minus value closest to 24h before it
+  const target24 = latestTime - DAY_MS;
+  let closest = sorted[0];
+  let closestDist = Infinity;
+  for (const e of sorted) {
+    const dist = Math.abs(new Date(e.datetime).getTime() - target24);
+    if (dist < closestDist) { closestDist = dist; closest = e; }
+  }
+  const last24 = latest - parseNum(closest.value);
+
+  // Average 24h change: for each consecutive pair, compute the per-24h rate, then average
+  let avg24 = 0;
+  if (sorted.length >= 2) {
+    const rates = [];
+    for (let i = 1; i < sorted.length; i++) {
+      const dv = parseNum(sorted[i].value) - parseNum(sorted[i - 1].value);
+      const dt = new Date(sorted[i].datetime).getTime() - new Date(sorted[i - 1].datetime).getTime();
+      if (dt > 0) rates.push((dv / dt) * DAY_MS);
+    }
+    if (rates.length > 0) avg24 = rates.reduce((s, r) => s + r, 0) / rates.length;
+  }
 
   const fmt = (n) => (n >= 0 ? '+' : '') + n.toFixed(2).replace(/\.00$/, '');
 
-  return `<span>24h: <strong>${fmt(diff24)}</strong></span>`
-       + `<span>Total: <strong>${fmt(total)}</strong></span>`
-       + `<span>Entries: <strong>${entries.length}</strong></span>`;
+  return `<span>Last 24h: <strong>${fmt(last24)}</strong></span>`
+       + `<span>Avg/24h: <strong>${fmt(avg24)}</strong></span>`
+       + `<span>Latest: <strong>${fmt(latest)}</strong></span>`;
 }
 
 function drawChart(canvas, entries) {
@@ -69,13 +90,9 @@ function drawChart(canvas, entries) {
 
   const sorted = [...entries].sort((a, b) => new Date(a.datetime) - new Date(b.datetime));
   const vals = sorted.map(e => parseNum(e.value));
-  const cumulative = [];
-  vals.reduce((sum, v, i) => { cumulative[i] = sum + v; return cumulative[i]; }, 0);
 
-  // Determine y range (include both raw values and cumulative)
-  const allVals = [...vals, ...cumulative];
-  let yMin = Math.min(0, ...allVals);
-  let yMax = Math.max(0, ...allVals);
+  let yMin = Math.min(0, ...vals);
+  let yMax = Math.max(0, ...vals);
   if (yMin === yMax) { yMin -= 1; yMax += 1; }
   const yPad = (yMax - yMin) * 0.1;
   yMin -= yPad;
@@ -86,15 +103,12 @@ function drawChart(canvas, entries) {
   const plotH = h - pad.top - pad.bottom;
 
   const n = sorted.length;
-  const barW = Math.max(2, Math.min(28, (plotW / n) * 0.7));
-  const gap = plotW / n;
-
-  const toX = (i) => pad.left + gap * i + gap / 2;
+  const toX = (i) => pad.left + (plotW / (n - 1 || 1)) * i;
   const toY = (v) => pad.top + plotH * (1 - (v - yMin) / (yMax - yMin));
   const zeroY = toY(0);
 
   // Grid lines
-  ctx.strokeStyle = '#2a2a2a';
+  ctx.strokeStyle = '#3a3a3a';
   ctx.lineWidth = 1;
   const gridSteps = 5;
   for (let i = 0; i <= gridSteps; i++) {
@@ -105,7 +119,7 @@ function drawChart(canvas, entries) {
     ctx.lineTo(w - pad.right, y);
     ctx.stroke();
 
-    ctx.fillStyle = '#555';
+    ctx.fillStyle = '#aaa';
     ctx.font = '11px system-ui, sans-serif';
     ctx.textAlign = 'right';
     ctx.textBaseline = 'middle';
@@ -113,48 +127,35 @@ function drawChart(canvas, entries) {
   }
 
   // Zero line
-  ctx.strokeStyle = '#444';
+  ctx.strokeStyle = '#666';
   ctx.lineWidth = 1;
   ctx.beginPath();
   ctx.moveTo(pad.left, zeroY);
   ctx.lineTo(w - pad.right, zeroY);
   ctx.stroke();
 
-  // Bars
-  for (let i = 0; i < n; i++) {
-    const x = toX(i) - barW / 2;
-    const v = vals[i];
-    const barTop = v >= 0 ? toY(v) : zeroY;
-    const barH = Math.max(1, Math.abs(toY(v) - zeroY));
-
-    ctx.fillStyle = v >= 0 ? '#3a8' : '#c55';
-    ctx.beginPath();
-    ctx.roundRect(x, barTop, barW, barH, 2);
-    ctx.fill();
-  }
-
-  // Cumulative line
+  // Line
   ctx.strokeStyle = '#7af';
   ctx.lineWidth = 2;
   ctx.beginPath();
   for (let i = 0; i < n; i++) {
     const x = toX(i);
-    const y = toY(cumulative[i]);
+    const y = toY(vals[i]);
     if (i === 0) ctx.moveTo(x, y);
     else ctx.lineTo(x, y);
   }
   ctx.stroke();
 
-  // Cumulative dots
-  ctx.fillStyle = '#7af';
+  // Dots — colored by sign
   for (let i = 0; i < n; i++) {
+    ctx.fillStyle = vals[i] >= 0 ? '#3a8' : '#c55';
     ctx.beginPath();
-    ctx.arc(toX(i), toY(cumulative[i]), 3, 0, Math.PI * 2);
+    ctx.arc(toX(i), toY(vals[i]), 4, 0, Math.PI * 2);
     ctx.fill();
   }
 
-  // X-axis labels (show a subset to avoid overlap)
-  ctx.fillStyle = '#555';
+  // X-axis labels
+  ctx.fillStyle = '#aaa';
   ctx.font = '10px system-ui, sans-serif';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'top';
