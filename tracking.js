@@ -14,8 +14,11 @@ function persist(data) {
 
 export function saveEntry(label, value) {
   const data = loadData();
-  if (!data[label]) data[label] = [];
-  data[label].push({ value, datetime: new Date().toISOString() });
+  // Match existing label case-insensitively
+  const existing = Object.keys(data).find(k => k.toLowerCase() === label.toLowerCase());
+  const key = existing ?? label;
+  if (!data[key]) data[key] = [];
+  data[key].push({ value, datetime: new Date().toISOString() });
   persist(data);
 }
 
