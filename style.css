@@ -8,10 +8,13 @@ main {
   display: flex;
   flex-direction: column;
   align-items: center;
+  width: 100%;
+  padding: 0 1rem;
 }
 
 body {
   min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -21,18 +24,21 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
+  padding: 2rem 0;
 }
 
 .card {
   text-align: center;
-  padding: 3rem 4rem;
+  padding: clamp(1.5rem, 4vw, 3rem) clamp(1.5rem, 5vw, 4rem);
   background: #1a1a1a;
   border-radius: 1rem;
   border: 1px solid #2a2a2a;
+  width: 100%;
+  max-width: 500px;
 }
 
 .time {
-  font-size: 5rem;
+  font-size: clamp(2.5rem, 10vw, 5rem);
   font-weight: 300;
   letter-spacing: 0.04em;
   font-variant-numeric: tabular-nums;
@@ -40,7 +46,7 @@ body {
 
 .date {
   margin-top: 0.5rem;
-  font-size: 1.25rem;
+  font-size: clamp(0.95rem, 2.5vw, 1.25rem);
   color: #aaa;
 }
 
@@ -67,9 +73,12 @@ body {
 /* Tracking form */
 .track-form {
   display: flex;
+  flex-wrap: wrap;
   gap: 0.5rem;
   margin-top: 1.5rem;
   justify-content: center;
+  width: 100%;
+  max-width: 500px;
 }
 
 .track-form input {
@@ -78,9 +87,11 @@ body {
   border-radius: 0.5rem;
   background: #1a1a1a;
   color: #f0f0f0;
-  font-size: 0.9rem;
+  font-size: 1rem;
   font-family: inherit;
   outline: none;
+  flex: 1 1 7rem;
+  min-width: 0;
 }
 
 .track-form input:focus {
@@ -99,9 +110,10 @@ body {
   border-radius: 0.5rem;
   background: #252525;
   color: #f0f0f0;
-  font-size: 0.9rem;
+  font-size: 1rem;
   font-family: inherit;
   cursor: pointer;
+  flex-shrink: 0;
 }
 
 .track-form button:hover {
@@ -136,6 +148,21 @@ body {
   text-transform: uppercase;
   letter-spacing: 0.05em;
   margin-bottom: 0.4rem;
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-color: #555;
+  text-underline-offset: 0.2em;
+}
+
+.track-label:hover {
+  color: #f0f0f0;
+  text-decoration-color: #aaa;
+}
+
+.track-label:focus-visible {
+  outline: 2px solid #5a9fd4;
+  outline-offset: 2px;
+  border-radius: 2px;
 }
 
 .track-entry {
@@ -183,6 +210,7 @@ body {
 /* Data toolbar (export/import) */
 .data-toolbar {
   display: flex;
+  flex-wrap: wrap;
   gap: 0.5rem;
   margin-top: 1rem;
   justify-content: center;
@@ -213,25 +241,6 @@ body {
   outline-offset: 1px;
 }
 
-/* Make label clickable */
-.track-label {
-  cursor: pointer;
-  text-decoration: underline;
-  text-decoration-color: #555;
-  text-underline-offset: 0.2em;
-}
-
-.track-label:hover {
-  color: #f0f0f0;
-  text-decoration-color: #aaa;
-}
-
-.track-label:focus-visible {
-  outline: 2px solid #5a9fd4;
-  outline-offset: 2px;
-  border-radius: 2px;
-}
-
 /* Modal */
 .modal-backdrop {
   position: fixed;
@@ -241,6 +250,7 @@ body {
   align-items: center;
   justify-content: center;
   z-index: 100;
+  padding: 1rem;
 }
 
 .modal-backdrop[hidden] {
@@ -251,9 +261,12 @@ body {
   background: #1a1a1a;
   border: 1px solid #2a2a2a;
   border-radius: 1rem;
-  padding: 1.5rem;
-  width: 90vw;
+  padding: clamp(1rem, 3vw, 1.5rem);
+  width: 100%;
   max-width: 640px;
+  max-height: 90vh;
+  max-height: 90dvh;
+  overflow-y: auto;
 }
 
 .modal-header {
@@ -294,7 +307,8 @@ body {
 
 .chart-summary {
   display: flex;
-  gap: 1.5rem;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.5rem;
   font-size: 0.8rem;
   color: #aaa;
   margin-bottom: 1rem;
@@ -314,8 +328,8 @@ body {
   position: fixed;
   top: 1.25rem;
   right: 1.25rem;
-  width: 2rem;
-  height: 2rem;
+  width: 2.5rem;
+  height: 2.5rem;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -326,6 +340,7 @@ body {
   cursor: pointer;
   user-select: none;
   transition: color 0.15s, border-color 0.15s, background 0.15s;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .cog-btn:hover {
@@ -340,8 +355,8 @@ body {
 }
 
 .cog-btn svg {
-  width: 1rem;
-  height: 1rem;
+  width: 1.1rem;
+  height: 1.1rem;
   display: block;
   flex-shrink: 0;
 }
@@ -379,7 +394,7 @@ body {
   border: 1px solid #333;
   border-radius: 0.35rem;
   padding: 0.35rem 0.5rem;
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   font-family: inherit;
   cursor: pointer;
   outline: none;
@@ -396,8 +411,8 @@ body {
   position: fixed;
   bottom: 1.25rem;
   right: 1.25rem;
-  width: 2rem;
-  height: 2rem;
+  width: 2.5rem;
+  height: 2.5rem;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -407,11 +422,12 @@ body {
   color: #999;
   cursor: default;
   user-select: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .info-btn svg {
-  width: 1rem;
-  height: 1rem;
+  width: 1.1rem;
+  height: 1.1rem;
   display: block;
   flex-shrink: 0;
 }
@@ -447,4 +463,31 @@ body {
 
 .info-btn:hover .info-tooltip {
   display: block;
+}
+
+/* Mobile adjustments */
+@media (max-width: 480px) {
+  body {
+    align-items: flex-start;
+    padding: 1.5rem 0;
+  }
+
+  .track-form button {
+    width: 100%;
+  }
+
+  .track-entry {
+    gap: 0.4rem;
+    font-size: 0.8rem;
+  }
+
+  .track-date {
+    font-size: 0.7rem;
+  }
+
+  .cog-btn,
+  .info-btn {
+    width: 2.75rem;
+    height: 2.75rem;
+  }
 }
